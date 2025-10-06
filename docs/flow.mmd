@@ -1,6 +1,4 @@
-%% Mermaid flow diagram for message flow in the project
-%% Save as docs/flow.mmd and open with Mermaid viewer or GitHub preview
-
+```mermaid
 flowchart TD
   subgraph MAIN [main/main.script]
     M_INIT([init])
@@ -33,34 +31,34 @@ flowchart TD
   end
 
   %% Start sequence
-  M_INIT -->|msg.post('go#start','load')| START
-  START_GUI -->|player tap -> gui animate -> msg.post('main:/go','show_game')| M_ONMSG
+  M_INIT -->|msg.post go#start load| START
+  START_GUI -->|player tap -> gui animate -> msg.post main:/go show_game| M_ONMSG
 
   %% Main handles show_game -> unload start, load game
-  M_ONMSG -->|msg.post('go#start','unload')| START
-  M_ONMSG -->|msg.post('go#game','load')| GAME
+  M_ONMSG -->|msg.post go#start unload| START
+  M_ONMSG -->|msg.post go#game load| GAME
 
   %% After game loaded, main handles proxy_loaded -> msg.post(sender,'enable')
-  M_ONMSG -->|proxy_loaded -> msg.post(sender,'enable')| GAME
+  M_ONMSG -->|proxy_loaded -> msg.post sender enable| GAME
 
   %% Container starts circle & squares
-  CONTAINER -->|msg.post('circle','start')| CIRCLE
-  CONTAINER -->|timer.delay 2s -> msg.post('squares','start')| SQUARES
+  CONTAINER -->|msg.post circle start| CIRCLE
+  CONTAINER -->|timer.delay 2s -> msg.post squares start| SQUARES
 
   %% Circle behavior: move loop and sounds, can end game
   CIRCLE -->|move loop| CIRCLE
-  CIRCLE -->|msg.post('main:/sound#rebound','play_sound')| S_REBOUND
-  CIRCLE -->|on some condition -> msg.post('container','end_game')| CONTAINER
-  CIRCLE -->|msg.post('main:/sound#move','play_sound')| S_MOVE
-  CIRCLE -->|msg.post('main:/sound#explode','play_sound')| S_EXPLODE
+  CIRCLE -->|msg.post main:/sound#rebound play_sound| S_REBOUND
+  CIRCLE -->|on condition -> msg.post container end_game| CONTAINER
+  CIRCLE -->|msg.post main:/sound#move play_sound| S_MOVE
+  CIRCLE -->|msg.post main:/sound#explode play_sound| S_EXPLODE
 
   %% Container end game -> ask main to show gameover
-  CONTAINER -->|msg.post('main:/go','show_gameover')| M_ONMSG
-  M_ONMSG -->|msg.post('go#game','unload')| GAME
-  M_ONMSG -->|msg.post('go#gameover','load')| GAMEOVER
+  CONTAINER -->|msg.post main:/go show_gameover| M_ONMSG
+  M_ONMSG -->|msg.post go#game unload| GAME
+  M_ONMSG -->|msg.post go#gameover load| GAMEOVER
 
   %% Start GUI also plays button sound
-  START_GUI -->|msg.post('main:/sound#button','play_sound')| S_BUTTON
+  START_GUI -->|msg.post main:/sound#button play_sound| S_BUTTON
 
   %% Render sets data.mid_x and projection used by circle scripts
   R_INIT -->|sets data.mid_x / min/max| GAME
@@ -79,3 +77,5 @@ flowchart TD
   subgraph LEGEND[Legend]
     L1[-> message / action]
   end
+
+```
