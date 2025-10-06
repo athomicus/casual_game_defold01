@@ -1,0 +1,79 @@
+script: "/start/start.gui_script"
+fonts {
+  name: "Schlub"
+  font: "/main/Schlub.font"
+}
+textures {
+  name: "main"
+  texture: "/main/main.atlas"
+}
+nodes {
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_BOX
+  id: "container"
+  inherit_alpha: true
+  alpha: 0.0
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 320.0
+    y: 660.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_BOX
+  id: "title"
+  parent: "container"
+  inherit_alpha: true
+  alpha: 0.0
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    y: 100.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "SQUARE"
+  font: "Schlub"
+  id: "text-1"
+  parent: "title"
+}
+nodes {
+  scale {
+    x: 1.7
+    y: 1.7
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "FALL\n"
+  ""
+  font: "Schlub"
+  id: "text-2"
+  parent: "title"
+}
+nodes {
+  position {
+    x: 320.0
+    y: 421.0
+  }
+  type: TYPE_BOX
+  texture: "main/play_button"
+  id: "play_button"
+  parent: "container"
+  size_mode: SIZE_MODE_AUTO
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

@@ -1,0 +1,27 @@
+local data = require('main.data')
+function init(self)
+	data.state = data.STATE_GAME
+	go.set_position(vmath.vector3(0,-data.max_y,0))
+
+	go.animate('.','position.y',go.PLAYBACK_ONCE_FORWARD,0,gui.EASING_OUTQUINT,0.4,0,function()
+		msg.post('circle', 'start')
+
+		timer.delay(2, false,function ()
+			msg.post('squares', 'start')			
+		end)
+	end)
+end
+
+
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash('end_game') then
+		timer.delay(0.3, false, function()
+			go.animate('.','position.y',go.PLAYBACK_ONCE_FORWARD,data.max_y,gui.EASING_INQUINT,0.4,0,function()
+				msg.post('main:/go', 'show_gameover')
+			end)
+		end)
+		data.state = data.STATE_GAMEOVER
+	end
+end
+

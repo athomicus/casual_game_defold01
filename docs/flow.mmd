@@ -1,0 +1,81 @@
+%% Mermaid flow diagram for message flow in the project
+%% Save as docs/flow.mmd and open with Mermaid viewer or GitHub preview
+
+flowchart TD
+  subgraph MAIN [main/main.script]
+    M_INIT([init])
+    M_ONMSG([on_message])
+  end
+
+  subgraph START [start collection]
+    START_GUI[start.gui_script:init]
+  end
+
+  subgraph GAME [game collection]
+    CONTAINER[container:init]
+    CIRCLE[circle:init/on_message]
+    SQUARES[squares/spawner]
+  end
+
+  subgraph GAMEOVER [gameover collection]
+    GO_GUI[gameover.gui_script]
+  end
+
+  subgraph RENDER [custom.render_script]
+    R_INIT[init sets project_width/mid_x]
+  end
+
+  subgraph SOUND [main sound GO]
+    S_BUTTON[button comp]
+    S_MOVE[move comp]
+    S_REBOUND[rebound comp]
+    S_EXPLODE[explode comp]
+  end
+
+  %% Start sequence
+  M_INIT -->|msg.post('go#start','load')| START
+  START_GUI -->|player tap -> gui animate -> msg.post('main:/go','show_game')| M_ONMSG
+
+  %% Main handles show_game -> unload start, load game
+  M_ONMSG -->|msg.post('go#start','unload')| START
+  M_ONMSG -->|msg.post('go#game','load')| GAME
+
+  %% After game loaded, main handles proxy_loaded -> msg.post(sender,'enable')
+  M_ONMSG -->|proxy_loaded -> msg.post(sender,'enable')| GAME
+
+  %% Container starts circle & squares
+  CONTAINER -->|msg.post('circle','start')| CIRCLE
+  CONTAINER -->|timer.delay 2s -> msg.post('squares','start')| SQUARES
+
+  %% Circle behavior: move loop and sounds, can end game
+  CIRCLE -->|move loop| CIRCLE
+  CIRCLE -->|msg.post('main:/sound#rebound','play_sound')| S_REBOUND
+  CIRCLE -->|on some condition -> msg.post('container','end_game')| CONTAINER
+  CIRCLE -->|msg.post('main:/sound#move','play_sound')| S_MOVE
+  CIRCLE -->|msg.post('main:/sound#explode','play_sound')| S_EXPLODE
+
+  %% Container end game -> ask main to show gameover
+  CONTAINER -->|msg.post('main:/go','show_gameover')| M_ONMSG
+  M_ONMSG -->|msg.post('go#game','unload')| GAME
+  M_ONMSG -->|msg.post('go#gameover','load')| GAMEOVER
+
+  %% Start GUI also plays button sound
+  START_GUI -->|msg.post('main:/sound#button','play_sound')| S_BUTTON
+
+  %% Render sets data.mid_x and projection used by circle scripts
+  R_INIT -->|sets data.mid_x / min/max| GAME
+
+  style MAIN fill:#f9f,stroke:#333,stroke-width:1px
+  style START fill:#9f9,stroke:#333
+  style GAME fill:#ff9,stroke:#333
+  style GAMEOVER fill:#9ff,stroke:#333
+  style SOUND fill:#fcc,stroke:#333
+  style RENDER fill:#ccf,stroke:#333
+
+  classDef comp fill:#fff,stroke:#666
+  class M_INIT,M_ONMSG,R_INIT comp
+
+  %% Legend
+  subgraph LEGEND[Legend]
+    L1[-> message / action]
+  end

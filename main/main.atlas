@@ -1,0 +1,17 @@
+images {
+  image: "/assets/images/circle.png"
+}
+images {
+  image: "/assets/images/line.png"
+}
+images {
+  image: "/assets/images/play_button.png"
+}
+images {
+  image: "/assets/images/replay_button.png"
+}
+images {
+  image: "/assets/images/square.png"
+}
+margin: 5
+extrude_borders: 2

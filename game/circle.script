@@ -1,0 +1,102 @@
+local data = require('main.data')
+ 
+function init(self)
+	 sprite.set_constant("#circle", "tint", data.color_one)
+	 sprite.set_constant("line#sprite", "tint", vmath.vector4(0,0,0,0.05))
+	 self.speed = 46
+	 self.direction = math.random(1,2) 
+
+	 local line_width = go.get("line#sprite", "size.x")
+	 local circle_width = go.get("#sprite", "size.x")
+
+	 data.line_edge_left = data.mid_x - (line_width / 2) --data.mid_x jest ustawiane w custom.render_script w funkcji init
+	 data.line_edge_right = data.mid_x + (line_width / 2)--data.mid_x = data.project_width / 2
+	 self.circle_max_left_x = data.line_edge_left + (circle_width / 2)
+	 self.circle_max_right_x = data.line_edge_right - (circle_width / 2)
+
+	 if self.direction == 1 then
+		 go.set('.','position.x',self.circle_max_left_x)
+	 else
+		go.set('.','position.x',self.circle_max_right_x)
+	 end
+end
+
+function move(self)
+	go.cancel_animations('.', 'position.x')
+	local new_x = (self.direction == 1) and self.circle_max_left_x or self.circle_max_right_x
+	local duration = data.duration(self.speed, go.get_position().x, new_x)
+	go.animate('.','position.x',go.PLAYBACK_ONCE_FORWARD,new_x,gui.EASING_LINEAR,duration,0,function()
+		--self:move()
+		move(self)
+		msg.post('main:/sound#rebound', 'play_sound')
+	end)
+	self.direction = (self.direction == 1) and 2 or 1
+end
+
+
+local function end_game(self)
+	
+	msg.post('.', 'release_input_focus')
+	go.cancel_animations('.','position.x')
+	msg.post('.', 'disable')	--disable circle --will be no visible
+	local function emitter_state_change(self,id,emitter,state)
+		if state == particlefx.PARTICLEFX_STATE_SLEEPING then
+			msg.post('container', 'end_game')
+		end
+	end
+	particlefx.play('#explode',emitter_state_change)
+	particlefx.set_constant('circle#explode', 'emitter', 'tint', data.color_one)
+	msg.post('main:/sound#explode', 'play_sound')
+end
+
+local function increase_speed(self)
+	
+	if self.speed < 56 then
+		self.speed = self.speed + 0.45
+	elseif self.speed <64 then 
+		self.speed = self.speed + 0.2
+
+	end
+end
+
+
+function update(self, dt)
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash('start') then
+		--
+		go.animate('.','scale', go.PLAYBACK_ONCE_FORWARD, 1, go.EASING_LINEAR, 0.3)
+		move(self)
+		msg.post('.', 'acquire_input_focus')
+	elseif message_id == hash('increase_speed') then
+		increase_speed(self)
+		--print(self.speed)
+	elseif message_id == hash('end_game') then
+		end_game(self)
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash('touch') and action.pressed then
+		move(self)
+		msg.post('main:/sound#move','play_sound')
+  
+	end
+end 
+
+--[[
+local before = collectgarbage("count")    -- KB
+collectgarbage("collect")
+local after = collectgarbage("count")
+print(string.format("GC: before=%.2fKB after=%.2fKB freed=%.2fKB", before, after, before - after))
+
+
+-- w update() możesz robić małe kroki
+collectgarbage("step", 100)  -- ilość pracy; eksperymentuj z wartością
+
+
+]]
