@@ -39,7 +39,7 @@ local function end_game(self)
 	msg.post('.', 'release_input_focus')
 	go.cancel_animations('.','position.x')
 	msg.post('.', 'disable')	--disable circle --will be no visible
-	local function emitter_state_change(self,id,emitter,state)
+	local function emitter_state_change(self,id,emitter,state) --callback for particlefx
 		if state == particlefx.PARTICLEFX_STATE_SLEEPING then
 			msg.post('container', 'end_game')
 		end
@@ -69,7 +69,10 @@ end
 function on_message(self, message_id, message, sender)
 	if message_id == hash('start') then
 		--
-		go.animate('.','scale', go.PLAYBACK_ONCE_FORWARD, 1, go.EASING_LINEAR, 0.3)
+		--go.animate('.','scale', go.PLAYBACK_ONCE_FORWARD, 1, go.EASING_LINEAR, 0.3) -- prawdopodobnie nadmiarowe
+		-- tylko utwierdza skale wiec mozna by uzyc
+		--go.set('.', 'scale', vmath.vector3(1))
+		
 		move(self)
 		msg.post('.', 'acquire_input_focus')
 	elseif message_id == hash('increase_speed') then

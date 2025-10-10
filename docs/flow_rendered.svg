@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simplified visual diagram (SVG). Convert to PNG locally if needed. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <style>
+    .box { fill:#f8f9fa; stroke:#333; stroke-width:1px; rx:8; }
+    .main { fill:#f9f; }
+    .start { fill:#9f9; }
+    .game { fill:#ff9; }
+    .gameover { fill:#9ff; }
+    .sound { fill:#fcc; }
+    .label { font-family: Arial, Helvetica, sans-serif; font-size:14px; fill:#222; }
+    .title { font-weight:700; font-size:16px; }
+    .arrow { stroke:#333; stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Blocks -->
+  <rect x="50" y="40" width="220" height="70" class="box main"/>
+  <text x="160" y="80" text-anchor="middle" class="label title">main/main.script</text>
+
+  <rect x="50" y="150" width="220" height="70" class="box start"/>
+  <text x="160" y="190" text-anchor="middle" class="label">start collection</text>
+
+  <rect x="350" y="150" width="260" height="120" class="box game"/>
+  <text x="480" y="170" text-anchor="middle" class="label title">game collection</text>
+  <text x="480" y="190" text-anchor="middle" class="label">container / circle / squares</text>
+
+  <rect x="350" y="320" width="260" height="70" class="box gameover"/>
+  <text x="480" y="355" text-anchor="middle" class="label">gameover</text>
+
+  <rect x="750" y="150" width="320" height="140" class="box sound"/>
+  <text x="910" y="180" text-anchor="middle" class="label title">sound components</text>
+  <text x="910" y="205" text-anchor="middle" class="label">button / move / rebound / explode</text>
+
+  <rect x="50" y="320" width="220" height="70" class="box"/>
+  <text x="160" y="355" text-anchor="middle" class="label">render script sets mid_x</text>
+
+  <!-- Arrows -->
+  <path d="M170 110 L170 150" class="arrow" />
+  <path d="M270 185 L350 185" class="arrow" />
+  <text x="310" y="175" class="label">msg.post go#game load</text>
+
+  <path d="M480 270 L480 320" class="arrow" />
+  <text x="540" y="270" class="label">on end -> msg.post main:/go show_gameover</text>
+
+  <path d="M470 200 L750 200" class="arrow" />
+  <text x="610" y="190" class="label">circle -> msg.post main:/sound#rebound play_sound</text>
+
+  <path d="M220 185 L220 340" class="arrow" />
+  <text x="120" y="260" class="label">start -> main show_game</text>
+
+  <path d="M480 400 L480 470" class="arrow" />
+  <text x="640" y="430" class="label">game -> gameover load/unload via main</text>
+
+  <!-- Legend -->
+  <rect x="950" y="40" width="200" height="110" class="box"/>
+  <text x="1050" y="70" class="label title" text-anchor="middle">Legend</text>
+  <text x="980" y="95" class="label">Arrows = msg.post / flow</text>
+  <text x="980" y="115" class="label">Blocks = collections / systems</text>
+
+</svg>
