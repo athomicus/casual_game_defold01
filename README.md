@@ -36,7 +36,7 @@ flowchart TD
   Circle -->|on end_game -> msg.post container end_game| Container
 
   %% Spawner creates squares
-  Squares -->|factory.create #factory (properties: speed,end_position,is_point)| SquareInst
+  Squares -->|factory.create #factory with properties speed end_position is_point| SquareInst
 
   %% Square lifecycle
   SquareInst -->|on reach end -> msg.post squares square_removed {id=go.get_id()}| Squares
