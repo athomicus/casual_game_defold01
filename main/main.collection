@@ -39,7 +39,7 @@ embedded_instances {
   "\"\n"
   "}\n"
   "embedded_components {\n"
-  "  id: \"exploed\"\n"
+  "  id: \"explode\"\n"
   "  type: \"sound\"\n"
   "  data: \"sound: \\\"/assets/sounds/explode.wav\\\"\\n"
   "\"\n"

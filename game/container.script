@@ -1,7 +1,7 @@
 local data = require('main.data')
 function init(self)
 	data.state = data.STATE_GAME
-	go.set_position(vmath.vector3(0,-data.max_y,0))
+	go.set_position(vmath.vector3(0,-data.max_y,0)) --max_y jest z render script (ustawiane w funkcji get_screen_data)
 
 	go.animate('.','position.y',go.PLAYBACK_ONCE_FORWARD,0,gui.EASING_OUTQUINT,0.4,0,function()
 		msg.post('circle', 'start')

@@ -1,8 +1,109 @@
 local data = require('main.data')
 function init(self)
-	-- Add initialization code here
-	-- Learn more: https://defold.com/manuals/script/
-	-- Remove this function if not needed
+	self.speed = 46
+	self.frequency =22 --HOW OFTEN SQUARE SPAWN
+	self.active = {} --refe4rence for spawned squares
+	self.square_counter = 0
+	
 end
 
- 
+
+
+
+local function spawn(self)
+	--Losuje losową pozycję X, gdzie kwadrat ma się pojawić na górze ekranu.
+	local start_x = math.random(0,data.project_width)
+	local start_position = vmath.vector3(start_x, data.max_y + 24,1)
+	local end_x = math.random(data.line_edge_left +48, data.line_edge_right -48)
+	
+	--Losuje pozycję X, gdzie kwadrat ma się zatrzymać (koniec ruchu).
+	local end_position  = vmath.vector3(end_x, data.mid_y - (data.screen_height/3),1)
+	self.square_counter = self.square_counter +1
+
+	local square = factory.create('#factory', start_position,nil,{
+		speed=self.speed,
+		end_position = end_position,
+		--moglo by byc tylko tak: (self.square_counter % 5 == 0) 
+		is_point = (self.square_counter % 5 == 0) and true or false 
+	}, 1)
+	table.insert(self.active, square)
+	local frequency = self.frequency * 0.1
+
+	--calculate delay - amount of time between spawns
+	local delay = data.duration(self.speed, start_position, end_position) / frequency
+	self.spawn_timer = timer.delay(delay, false, function()
+		--spawn kolejny kwadrat
+		spawn(self)
+	end)
+end
+
+local function increase_difficulty(self)
+	if self.speed < 58 then
+		self.speed = self.speed + 0.54
+	elseif self.speed < 66 then
+		self.speed = self.speed + 0.2
+	end
+
+	if self.frequency < 34 then
+		self.frequency = self.frequency + 0.55
+	elseif self.frequency < 44 then
+		self.frequency = self.frequency + 0.25
+	end
+end
+
+
+function on_message(self, message_id, message,sender)
+	if message_id == hash('start') then
+		spawn(self)
+
+	elseif message_id == hash('increase_difficulty') then
+		increase_difficulty(self)
+		
+	elseif message_id == hash('square_removed') then
+		--usun referencje do usunietego kwadratu z listy aktywnych
+		for i,j in pairs(self.active) do
+			if j == message then
+				table.remove(self.active, i)
+				break
+			end
+		end
+
+		go.animate(message.id  ,'scale', go.PLAYBACK_ONCE_FORWARD, vmath.vector3(0), go.EASING_LINEAR, 0.3,0,function()
+		go.delete(message.id) --go.delete(message.id,true)
+		end)
+	
+	elseif message_id == hash('stop') then --stop from square script
+		timer.cancel(self.spawn_timer)
+		for i=#self.active,1,-1 do
+			local square = self.active[i]
+			table.remove(self.active,i)
+			 
+				go.cancel_animations(square, 'euler.z')
+				go.cancel_animations(square, 'position')
+				go.animate(square  ,'scale', go.PLAYBACK_ONCE_FORWARD, vmath.vector3(0), go.EASING_LINEAR, 0.3,0.5,function()
+				go.delete(square) --go.delete(message.id,true)
+					end)
+				end
+		 
+	
+	elseif message_id == hash('end_game') then
+		--anuluj timer spawnujący kwadraty
+		if self.spawn_timer then
+			timer.cancel(self.spawn_timer)
+			self.spawn_timer = nil
+		end
+		--anuluj timer zwiększający trudność
+		if self.difficulty_timer then
+			timer.cancel(self.difficulty_timer)
+			self.difficulty_timer = nil
+		end
+		--usun wszystkie aktywne kwadraty
+		for _, square in ipairs(self.active) do
+			if go.is_enabled(square) then
+				go.delete(square)
+			end
+		end
+		self.active = {}
+	end
+
+end

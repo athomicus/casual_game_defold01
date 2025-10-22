@@ -2,7 +2,7 @@ local data = require('main.data')
 function init(self)
 	msg.post(".", "acquire_input_focus")
 	msg.post("@render:", "use_fixed_fit_projection", { near = -1, far = 1 })
-	math.random(os.time())
+	math.random(os.time())  --math.randomseed(os.time())
 	math.random()
 	msg.post('@render:',hash('clear_color'), {color = data.bg_color })
 	--load start collection
