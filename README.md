@@ -1,21 +1,63 @@
 # Welcome to Defold
+```mermaid
+flowchart TD
+  subgraph Main
+    M[main:/go]
+    R[@render:]
+  end
 
-This project was created from the "mobile" project template. This means that the settings in ["game.project"](defold://open?path=/game.project) have been changed to be suitable for a mobile game:
+  StartGUI[start:/gui]
+  Container[container:/go]
+  Circle[circle:/go]
+  Squares[squares:/go] %% spawner
+  SquareInst[Square Instances]
+  Score[score:/go]
+  Sound[main:/sound]
+  Gameover[gameover:/go]
 
-- The screen size is set to 640x1136
-- The projection is set to Fixed Fit
-- Orientation is fixed vertically
-- Android and iOS icons are set
-- Mouse click/single touch is bound to action "touch"
-- A simple script in a game object is set up to receive and react to input
-- Accelerometer input is turned off (for better battery life)
+  %% Startup
+  M -->|msg.post('@render:','use_fixed_fit_projection')| R
+  M -->|msg.post('go#start','load')| StartGUI
 
-[Build and run](defold://project.build) to see it in action. You can of course alter these settings to fit your needs.
+  %% Start screen interactions
+  StartGUI -->|msg.post('main:/sound#button','play_sound')| Sounda
+  StartGUI -->|msg.post('main:/go','show_game')| M
 
-Check out [the documentation pages](https://defold.com/learn) for examples, tutorials, manuals and API docs.
+  %% Main shows game -> load game collection
+  M -->|msg.post('go#game','load')| Container
 
-If you run into trouble, help is available in [our forum](https://forum.defold.com).
+  %% Container starts circle then spawner
+  Container -->|msg.post('circle','start')| Circle
+  Container -->|timer.delay -> msg.post('squares','start')| Squares
 
-Happy Defolding!
+  %% Circle behaviour
+  Circle -->|msg.post('.', 'acquire_input_focus')| Circle
+  Circle -->|msg.post('main:/sound#rebound','play_sound')| Sound
+  Circle -->|on end_game -> msg.post('container','end_game')| Container
 
----
+  %% Spawner creates squares
+  Squares -->|factory.create('#factory', properties: {speed,end_position,is_point})| SquareInst
+
+  %% Square lifecycle
+  SquareInst -->|on reach end -> msg.post('squares','square_removed',{id=go.get_id()})| Squares
+  SquareInst -->|on trigger (point) -> msg.post('squares','square_removed',{id=go.get_id()}); msg.post('score','increase_score'); msg.post('circle','increase_speed')| Squares
+  Squares -->|on square_removed -> animate + go.delete(message.id)| SquareInst
+
+  %% Score and Gameover
+  Squares -->|msg.post('main:/go','show_gameover')| M
+  Score -->|msg.post('gameover:/go#gameover','final_score',{score})| Gameover
+
+  %% Sound module used globally
+  SquareInst -->|msg.post('main:/sound#point','play_sound')| Sound
+  SquareInst -->|msg.post('main:/sound#move','play_sound')| Sound
+  SquareInst -->|msg.post('main:/sound#explode','play_sound')| Sound
+
+  style Main fill:#f9f,stroke:#333,stroke-width:1px
+  style Container fill:#ff9,stroke:#333
+  style Circle fill:#9ff,stroke:#333
+  style Squares fill:#9f9,stroke:#333
+  style SquareInst fill:#fff,stroke:#333
+  style Score fill:#f99,stroke:#333
+  style Gameover fill:#fcc,stroke:#333
+  style Sound fill:#ddd,stroke:#333
+```
