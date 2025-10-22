@@ -1,5 +1,3 @@
-# Welcome to Defold
-
 ```mermaid
 flowchart TD
   subgraph Main
@@ -10,7 +8,8 @@ flowchart TD
   StartGUI["start:/gui"]
   Container["container:/go"]
   Circle["circle:/go"]
-  Squares["squares:/go"] %% spawner
+  %% spawner
+  Squares["squares:/go"]
   SquareInst["Square Instances"]
   Score["score:/go"]
   Sound["main:/sound"]
