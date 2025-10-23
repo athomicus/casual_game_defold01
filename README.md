@@ -20,7 +20,6 @@ At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#
 
 <BR>
 ```lua
-
 function on_message(self, message_id, message,sender)
 	-- TRANSITION TO GAME SCENE
 	-- Triggered by: start.gui_script or gameover.gui_script	
