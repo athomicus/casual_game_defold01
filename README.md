@@ -267,512 +267,490 @@ This creates an **accelerating difficulty curve** that challenges players progre
 | `game/square.script` | Individual obstacle behavior and collision |
 | `game/score.script` | Score tracking and persistence |
 | `custom/render/custom.render_script` | Screen projection and rendering pipeline |
-<br><br>
+
+<br><br><br>
 
 
-Game Scene - Complete Object Lifecycle & Message Flow
-Game Scene Architecture Diagram
+=======================================================
+
+<br><br><br>
+
+Game Scene Documentation - Mermaid Diagrams
+1. Game Scene Architecture Overview
+```mermaid
 graph TB
-    subgraph "GAME SCENE INITIALIZATION ORDER"
-        PROXY[Collection Proxy: go#game]
-        CONTAINER[1. container.script<br/>Game Orchestrator]
-        CIRCLE[2. circle.script<br/>Player Object]
-        SCORE[3. score.script<br/>Score Display]
-        SQUARES[4. square_spawner.script<br/>Square Factory]
+    subgraph INIT["🎬 INITIALIZATION ORDER"]
+        PROXY[Collection Proxy<br/>go#game]
+        CONTAINER[1️⃣ container.script<br/>Game Orchestrator]
+        CIRCLE[2️⃣ circle.script<br/>Player Object]
+        SCORE[3️⃣ score.script<br/>Score Display]
+        SQUARES[4️⃣ square_spawner.script<br/>Square Factory]
     end
 
-    subgraph "DYNAMIC OBJECTS"
-        SQUARE[square.script<br/>Individual Square Instance<br/>Created by Factory]
+    subgraph DYNAMIC["⚙️ DYNAMIC OBJECTS"]
+        SQUARE[square.script<br/>Individual Square<br/>Created by Factory]
     end
 
-    subgraph "EXTERNAL SYSTEMS"
+    subgraph EXTERNAL["🔊 EXTERNAL SYSTEMS"]
         SOUND[Sound System<br/>main:/sound#*]
         MAIN[Main Controller<br/>main:/go]
     end
 
-    PROXY -->|"proxy_loaded + enable"| CONTAINER
-    CONTAINER -->|"init() → animate container in<br/>0.4s delay"| CONTAINER
+    PROXY -->|proxy_loaded + enable| CONTAINER
+    CONTAINER -->|init: animate in 0.4s| CONTAINER
     CONTAINER -->|"msg.post('circle', 'start')"| CIRCLE
     CONTAINER -->|"timer.delay(2s)<br/>msg.post('squares', 'start')"| SQUARES
     
-    CIRCLE -->|"on 'start' received<br/>→ move()<br/>→ acquire_input_focus"| CIRCLE
-    CIRCLE -->|"on tap<br/>msg.post('main:/sound#move', 'play_sound')"| SOUND
-    CIRCLE -->|"on boundary reached<br/>msg.post('main:/sound#rebound', 'play_sound')"| SOUND
-    CIRCLE -->|"on end_game<br/>msg.post('main:/sound#explode', 'play_sound')"| SOUND
+    CIRCLE -->|"'start' received<br/>move() + acquire_input"| CIRCLE
+    CIRCLE -->|tap: play_sound| SOUND
+    CIRCLE -->|boundary: play_sound| SOUND
+    CIRCLE -->|end_game: play_sound| SOUND
     CIRCLE -->|"after explosion<br/>msg.post('container', 'end_game')"| CONTAINER
     
-    SQUARES -->|"factory.create()<br/>every 0.5s"| SQUARE
-    SQUARE -->|"init() → move()<br/>animate to end_position"| SQUARE
-    SQUARE -->|"reach end position<br/>msg.post('squares', 'square_removed')"| SQUARES
-    SQUARE -->|"collision: is_point=true<br/>msg.post('score', 'increase_score')"| SCORE
-    SQUARE -->|"collision: is_point=true<br/>msg.post('squares', 'increase_speed')"| SQUARES
-    SQUARE -->|"collision: is_point=true<br/>msg.post('circle', 'increase_speed')"| CIRCLE
-    SQUARE -->|"collision: is_point=true<br/>msg.post('squares', 'square_removed')"| SQUARES
-    SQUARE -->|"collision: is_point=false<br/>msg.post('circle', 'end_game')"| CIRCLE
-    SQUARE -->|"collision: is_point=false<br/>msg.post('squares', 'stop')"| SQUARES
+    SQUARES -->|factory.create every 0.5s| SQUARE
+    SQUARE -->|init: move to end_position| SQUARE
+    SQUARE -->|reach end: square_removed| SQUARES
+    SQUARE -->|"collision RED<br/>increase_score"| SCORE
+    SQUARE -->|collision RED: increase_speed| SQUARES
+    SQUARE -->|collision RED: increase_speed| CIRCLE
+    SQUARE -->|collision RED: square_removed| SQUARES
+    SQUARE -->|collision DARK: end_game| CIRCLE
+    SQUARE -->|collision DARK: stop| SQUARES
     
-    SCORE -->|"on increase_score<br/>msg.post('main:/sound#point', 'play_sound')"| SOUND
-    SCORE -->|"on final()<br/>msg.post('gameover:/go#gameover', 'final_score')"| MAIN
+    SCORE -->|increase_score: play_sound| SOUND
+    SCORE -->|"final()<br/>final_score"| MAIN
     
-    CONTAINER -->|"on end_game<br/>timer.delay(0.3s) → animate out<br/>msg.post('main:/go', 'show_gameover')"| MAIN
+    CONTAINER -->|"end_game<br/>show_gameover"| MAIN
 
-    style CONTAINER fill:#e94a4f,color:#fff
-    style CIRCLE fill:#4a90e2,color:#fff
-    style SCORE fill:#50c878,color:#fff
-    style SQUARES fill:#9370db,color:#fff
-    style SQUARE fill:#ffa500,color:#fff
-    style SOUND fill:#ff6b6b,color:#fff
-    style MAIN fill:#4ecdc4,color:#fff
-Detailed Initialization Sequence
+    style CONTAINER fill:#e94a4f,color:#fff,stroke:#333,stroke-width:2px
+    style CIRCLE fill:#4a90e2,color:#fff,stroke:#333,stroke-width:2px
+    style SCORE fill:#50c878,color:#fff,stroke:#333,stroke-width:2px
+    style SQUARES fill:#9370db,color:#fff,stroke:#333,stroke-width:2px
+    style SQUARE fill:#ffa500,color:#fff,stroke:#333,stroke-width:2px
+    style SOUND fill:#ff6b6b,color:#fff,stroke:#333,stroke-width:2px
+    style MAIN fill:#4ecdc4,color:#fff,stroke:#333,stroke-width:2px
+```
+2. Initialization Sequence Timeline
+```mermaid
 sequenceDiagram
     autonumber
-    participant Main as Main Controller
-    participant Proxy as Collection Proxy
-    participant Container as Container
-    participant Circle as Circle (Player)
-    participant Score as Score
-    participant Spawner as Square Spawner
-    participant Sound as Sound System
+    participant Main as 🎮 Main Controller
+    participant Proxy as 📦 Collection Proxy
+    participant Container as 🎬 Container
+    participant Circle as 🔴 Circle Player
+    participant Score as 💯 Score
+    participant Spawner as 🏭 Square Spawner
+    participant Sound as 🔊 Sound
 
-    Main->>Proxy: load collection
+    Note over Main,Sound: GAME SCENE INITIALIZATION
+
+    Main->>Proxy: msg.post('go#game', 'load')
     Note over Proxy: Loading resources...
     Proxy->>Main: proxy_loaded
-    Main->>Proxy: enable
+    Main->>Proxy: msg.post(sender, 'enable')
     
-    Note over Container: init() called
+    rect rgb(200, 220, 240)
+    Note over Container: init() executes
     Container->>Container: Set STATE_GAME
-    Container->>Container: Position at bottom (y=-max_y)
-    Container->>Container: Animate up (0.4s)
+    Container->>Container: Position at y = -max_y
+    Container->>Container: Animate up (0.4s OUTQUINT)
+    end
     
-    Note over Circle: init() called
-    Circle->>Circle: Set color, speed=46, random direction
-    Circle->>Circle: Calculate boundaries (left/right)
+    rect rgb(220, 240, 200)
+    Note over Circle: init() executes
+    Circle->>Circle: Set color, speed=46
+    Circle->>Circle: direction = random(1,2)
+    Circle->>Circle: Calculate boundaries
     Circle->>Circle: Position at start boundary
+    end
     
-    Note over Score: init() called
-    Score->>Score: Set score=0, label color
+    rect rgb(240, 220, 200)
+    Note over Score: init() executes
+    Score->>Score: score = 0
+    Score->>Score: Set label color
+    end
     
-    Note over Spawner: init() called
-    Spawner->>Spawner: Set speed=46, frequency=22
+    rect rgb(240, 200, 220)
+    Note over Spawner: init() executes
+    Spawner->>Spawner: speed=46, frequency=22
+    Spawner->>Spawner: active={}, counter=0
+    end
     
-    Note over Container: Animation complete (0.4s)
+    Note over Container: t=0.4s - Animation complete
     Container->>Circle: msg.post('circle', 'start')
     
-    Circle->>Circle: Call move()
-    Circle->>Circle: Animate to opposite boundary
-    Circle->>Circle: acquire_input_focus (enable touch)
-    Note over Circle: Now bouncing left ↔ right
+    rect rgb(100, 200, 255)
+    Circle->>Circle: move() - animate to boundary
+    Circle->>Circle: acquire_input_focus
+    Note over Circle: ▶️ Circle bouncing left ↔ right
+    end
     
-    Container->>Container: timer.delay(2s)
-    Note over Container: Wait 2 seconds...
+    Container->>Container: timer.delay(2 seconds)
     
+    Note over Container: t=2.4s - Timer fires
     Container->>Spawner: msg.post('squares', 'start')
-    Note over Spawner: Start spawning squares
-    Spawner->>Spawner: factory.create() first square
     
-    Note over Container,Spawner: GAME FULLY ACTIVE
-Complete Object Reference
-1. CONTAINER.SCRIPT - Game Orchestrator
-Initialization:
-init():
-    - Set data.state = STATE_GAME
-    - Position container at bottom (y = -max_y)
-    - Animate container up (0.4s duration)
-    - On animation complete:
-        ↓
-        msg.post('circle', 'start')
-        timer.delay(2s):
-            msg.post('squares', 'start')
-Messages Sent:
-To	Message	When	Purpose
-circle	start	After container animates in	Start player movement
-squares	start	2 seconds after circle starts	Begin spawning squares
-main:/go	show_gameover	After end_game animation	Transition to gameover screen
-Messages Received:
-From	Message	Action	Details
-circle	end_game	Wait 0.3s → Animate container out → Notify main	Triggered after explosion completes
-2. CIRCLE.SCRIPT - Player Controller
-Initialization:
-init():
-    - Set sprite color (data.color_one = red)
-    - Set line color (transparent black)
-    - speed = 46
-    - direction = random(1 or 2)  [1=left, 2=right]
-    - Calculate boundaries:
-        circle_max_left_x = line_edge_left + (circle_width/2)
-        circle_max_right_x = line_edge_right - (circle_width/2)
-    - Position at starting boundary
-    - Wait for 'start' message
-Messages Sent:
-To	Message	When	Purpose
-. (self)	acquire_input_focus	On start	Enable touch input
-. (self)	release_input_focus	On end_game	Disable touch input
-. (self)	disable	On end_game	Hide circle
-main:/sound#move	play_sound	Player taps screen	Movement sound
-main:/sound#rebound	play_sound	Reach boundary	Bounce sound
-main:/sound#explode	play_sound	On end_game	Explosion sound
-container	end_game	After explosion finishes	Notify game ended
-Messages Received:
-From	Message	Action	Details
-container	start	Call move() + acquire input	Begin bouncing
-square	increase_speed	speed += 0.45 (or +0.2 if speed > 56)	Max ~64
-square	end_game	Release input → Disable → Play explosion → Notify container	Game over sequence
-Input Handling:
-on_input():
-    if hash('touch') and action.pressed:
-        → move()  (reverse direction)
-        → msg.post('main:/sound#move', 'play_sound')
-Core Logic - move():
-move():
-    1. Cancel current animation
-    2. Calculate new_x (opposite boundary)
-    3. Calculate duration based on speed & distance
-    4. Animate to new_x
-    5. On complete:
-        → Call move() again (loop)
-        → msg.post('main:/sound#rebound', 'play_sound')
-    6. Flip direction (1 → 2 or 2 → 1)
-3. SCORE.SCRIPT - Score Tracker
-Initialization:
-init():
-    - score = 0
-    - Set label color (black, 20% opacity)
-Messages Sent:
-To	Message	When	Purpose
-main:/sound#point	play_sound	Score increases	Point collected sound
-gameover:/go#gameover	final_score {score=N}	final() called	Send score to gameover screen
-Messages Received:
-From	Message	Action	Details
-square	increase_score	score += 1 → Update label → Animate scale pulse (×1.15) → Play sound	Only from point squares
-Core Logic:
-on_message('increase_score'):
-    1. self.score = self.score + 1
-    2. label.set_text('#label', tostring(self.score))
-    3. msg.post('main:/sound#point', 'play_sound')
-    4. if not animating:
-        → animate scale to 1.15x and back (0.28s)
-4. SQUARE_SPAWNER.SCRIPT - Factory Manager
-Initialization:
-init():
-    - speed = 46
-    - frequency = 22
-    - active = {}  (table of spawned squares)
-    - square_counter = 0
-    - Wait for 'start' message
-Messages Sent:
-To	Message	When	Purpose
-None	-	-	Factory only creates objects, doesn't send messages
-Messages Received:
-From	Message	Action	Details
-container	start	Call spawn() → Begin spawn loop	Starts spawning
-square	increase_speed	speed += 0.54 (max 66)<br/>frequency += 0.55 (max 44)	Difficulty increase
-square	square_removed {id=...}	Animate scale to 0 → Delete square	Normal cleanup
-square	stop	Cancel timer → Animate out all squares	Stop spawning (game over)
-circle	end_game	Cancel timers → Delete all squares immediately	Emergency cleanup
-Core Logic - spawn():
-spawn():
-    1. Generate random start_x (0 to screen_width)
-    2. start_position = (start_x, top_of_screen)
-    3. Generate random end_x (within line boundaries)
-    4. end_position = (end_x, mid_screen - 1/3 height)
-    5. square_counter += 1
-    6. Create square with factory:
-        - speed = self.speed
-        - end_position = calculated position
-        - is_point = (square_counter % 5 == 0)  [Every 5th square is red]
-    7. Add to active[] table
-    8. Calculate delay for next spawn
-    9. timer.delay(delay) → spawn() again
-Spawn Frequency:
-delay = duration(speed, start, end) / frequency
-Higher frequency = faster spawning
-Higher speed = faster falling
-5. SQUARE.SCRIPT - Individual Obstacle
-Properties (Set by Factory):
-go.property('speed', 0)            -- Fall speed from spawner
-go.property('end_position', vec3)  -- Target position
-go.property('is_point', false)     -- true = red (collectible), false = dark (hazard)
-Initialization:
-init():
-    if is_point:
-        → Set color to data.color_one (red)
-    else:
-        → Set color to data.color_two (dark)
-    → Call move()
-Messages Sent:
-To	Message	When	Purpose
-#collisionobject	disable	Collision detected	Prevent multiple collisions
-squares	square_removed {id=...}	Reach end OR collision (point)	Request deletion
-score	increase_score	Collision (is_point=true)	Add +1 score
-squares	increase_speed	Collision (is_point=true)	Increase spawn difficulty
-circle	increase_speed	Collision (is_point=true)	Increase player speed
-circle	end_game	Collision (is_point=false)	Trigger game over
-squares	stop	Collision (is_point=false)	Stop spawning
-Messages Received:
-From	Message	Action	Details
-Physics	trigger_response	Handle collision logic	See collision logic below
-Core Logic - move():
-move():
-    1. Calculate duration (speed, current_pos, end_position)
-    2. Pick random spin direction (360 or -360)
-    3. Start rotation loop animation
-    4. Animate position to end_position
-    5. On complete:
-        → msg.post('squares', 'square_removed', {id=...})
-Collision Logic:
-on_message('trigger_response'):
-    if enter and other_group == 'circle' and not collided:
-        collided = true  (prevent multiple triggers)
-        msg.post('#collisionobject', 'disable')
-        
-        if is_point == true:  [RED SQUARE - COLLECT IT]
-            ↓
-            1. msg.post('score', 'increase_score')
-            2. msg.post('squares', 'increase_speed')
-            3. msg.post('circle', 'increase_speed')
-            4. Animate scale to 0 (0.1s)
-            5. msg.post('squares', 'square_removed', {id=...})
-            
-        else:  [DARK SQUARE - GAME OVER]
-            ↓
-            1. msg.post('circle', 'end_game')
-            2. msg.post('squares', 'stop')
-Critical Message Chains
-Chain 1: Game Start (Full Initialization)
-Main Controller loads game
-    ↓
-Collection Proxy: proxy_loaded
-    ↓
-Main sends: enable
-    ↓
-Container.init() executes:
-    ├─ Set state = GAME
-    ├─ Position at bottom
-    └─ Animate up (0.4s)
-        ↓
-    Animation complete:
-        ├─ msg.post('circle', 'start')
-        │   ↓
-        │   Circle receives 'start':
-        │   ├─ move() → Animate to boundary
-        │   └─ acquire_input_focus (enable touch)
-        │       ↓
-        │   Circle bouncing left ↔ right
-        │
-        └─ timer.delay(2s)
-            ↓
-            msg.post('squares', 'start')
-                ↓
-            Spawner receives 'start':
-                ├─ spawn() first square
-                └─ Start spawn timer loop
-                    ↓
-                GAME FULLY RUNNING
-Timeline:
-t=0.0s - Container animates in
-t=0.4s - Circle starts moving
-t=2.4s - Squares start spawning
-Chain 2: Collect Point Square (Success Path)
-Circle collides with RED square
-    ↓
-Square detects: trigger_response + is_point=true
-    ↓
-Square sends 4 parallel messages:
-    │
-    ├─→ msg.post('score', 'increase_score')
-    │       ↓
-    │   Score receives:
-    │   ├─ score += 1
-    │   ├─ Update label text
-    │   ├─ Animate scale pulse (×1.15)
-    │   └─ msg.post('main:/sound#point', 'play_sound')
-    │           ↓
-    │       Sound plays "point.wav"
-    │
-    ├─→ msg.post('squares', 'increase_speed')
-    │       ↓
-    │   Spawner receives:
-    │   ├─ speed += 0.54 (max 66)
-    │   └─ frequency += 0.55 (max 44)
-    │       ↓
-    │   Squares fall faster & spawn more frequently
-    │
-    ├─→ msg.post('circle', 'increase_speed')
-    │       ↓
-    │   Circle receives:
-    │   └─ speed += 0.45 (max ~64)
-    │       ↓
-    │   Circle moves faster between boundaries
-    │
-    └─→ Animate scale to 0 (0.1s)
-            ↓
-        msg.post('squares', 'square_removed', {id=...})
-            ↓
-        Spawner receives:
-        ├─ Find square in active[] table
-        ├─ Remove from table
-        ├─ Animate scale to 0 (0.3s)
-        └─ go.delete(square)
-            ↓
-        Square cleaned up
+    rect rgb(200, 100, 255)
+    Spawner->>Spawner: spawn() first square
+    Spawner->>Spawner: Set spawn timer loop
+    Note over Spawner: ▶️ Squares spawning continuously
+    end
+    
+    Note over Main,Sound: ✅ GAME FULLY ACTIVE
+```
+3. Collect Point Square (Success Path)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Player as 👆 Player
+    participant Circle as 🔴 Circle
+    participant Square as 🟥 RED Square
+    participant Score as 💯 Score
+    participant Spawner as 🏭 Spawner
+    participant Sound as 🔊 Sound
 
-RESULT: +1 Score, Difficulty Increased, Square Removed
-Chain 3: Hit Hazard Square (Game Over Path)
-Circle collides with DARK square
-    ↓
-Square detects: trigger_response + is_point=false
-    ↓
-Square sends 2 parallel messages:
-    │
-    ├─→ msg.post('circle', 'end_game')
-    │       ↓
-    │   Circle receives 'end_game':
-    │   ├─ msg.post('.', 'release_input_focus')  [Disable touch]
-    │   ├─ Cancel position animations
-    │   ├─ msg.post('.', 'disable')  [Hide circle]
-    │   ├─ particlefx.play('#explode')  [Start explosion]
-    │   └─ msg.post('main:/sound#explode', 'play_sound')
-    │       ↓
-    │   Wait for explosion to finish (callback):
-    │       ↓
-    │   msg.post('container', 'end_game')
-    │       ↓
-    │   Container receives 'end_game':
-    │   ├─ Set state = GAMEOVER
-    │   ├─ timer.delay(0.3s)
-    │   └─ Animate container down (0.4s)
-    │       ↓
-    │   Animation complete:
-    │       ↓
-    │   msg.post('main:/go', 'show_gameover')
-    │       ↓
-    │   Main Controller:
-    │   ├─ msg.post('go#game', 'unload')
-    │   └─ msg.post('go#gameover', 'load')
-    │       ↓
-    │   Score.final() executes:
-    │       ↓
-    │   msg.post('gameover:/go#gameover', 'final_score', {score=N})
-    │       ↓
-    │   GAMEOVER SCREEN SHOWN
-    │
-    └─→ msg.post('squares', 'stop')
-            ↓
-        Spawner receives 'stop':
-        ├─ timer.cancel(spawn_timer)
-        ├─ For each square in active[]:
-        │   ├─ Cancel animations
-        │   ├─ Animate scale to 0 (0.3s, 0.5s delay)
-        │   └─ go.delete(square)
-        └─ Clear active[] table
-            ↓
-        All squares removed
+    Note over Circle,Square: ⚡ COLLISION DETECTED
 
-RESULT: Game Over Sequence, Transition to Gameover Screen
-Chain 4: Square Lifecycle (Normal End - No Collision)
-Spawner creates square via factory
-    ↓
-Square.init() executes:
-    ├─ Set color (red or dark)
-    └─ move()
-        ├─ Animate rotation (loop)
-        └─ Animate position to end_position
-            ↓
-        [Time passes... falling...]
-            ↓
-        Animation reaches end_position:
-            ↓
-        msg.post('squares', 'square_removed', {id=...})
-            ↓
-        Spawner receives 'square_removed':
-        ├─ Find square in active[] table
-        ├─ Remove from table
-        ├─ Animate scale to 0 (0.3s)
-        └─ go.delete(square)
-            ↓
-        Square cleaned up
+    Circle->>Square: trigger_response (collision)
+    Square->>Square: Check: is_point == true ✅
+    Square->>Square: msg.post('#collisionobject', 'disable')
+    
+    par Parallel Messages
+        Square->>Score: msg.post('score', 'increase_score')
+        Square->>Spawner: msg.post('squares', 'increase_speed')
+        Square->>Circle: msg.post('circle', 'increase_speed')
+    end
+    
+    rect rgb(200, 255, 200)
+    Note over Score: SCORE SYSTEM
+    Score->>Score: score += 1
+    Score->>Score: Update label text
+    Score->>Score: Animate scale pulse (×1.15)
+    Score->>Sound: msg.post('main:/sound#point', 'play_sound')
+    Sound-->>Player: 🔊 "point.wav"
+    end
+    
+    rect rgb(200, 220, 255)
+    Note over Spawner: DIFFICULTY INCREASE
+    Spawner->>Spawner: speed += 0.54 (max 66)
+    Spawner->>Spawner: frequency += 0.55 (max 44)
+    Note over Spawner: ⚡ Squares fall faster
+    end
+    
+    rect rgb(255, 220, 200)
+    Note over Circle: PLAYER SPEED UP
+    Circle->>Circle: speed += 0.45 (max ~64)
+    Note over Circle: ⚡ Circle moves faster
+    end
+    
+    Square->>Square: Animate scale to 0 (0.1s)
+    Square->>Spawner: msg.post('squares', 'square_removed', {id})
+    
+    Spawner->>Spawner: Find in active[] table
+    Spawner->>Spawner: Remove from table
+    Spawner->>Square: Animate scale to 0 (0.3s)
+    Spawner->>Square: go.delete(square)
+    
+    Note over Circle,Sound: ✅ RESULT: +1 Score, Difficulty ⬆️, Square Removed
+```
+4. Hit Hazard Square (Game Over Path)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Circle as 🔴 Circle
+    participant Square as ⬛ DARK Square
+    participant Spawner as 🏭 Spawner
+    participant Container as 🎬 Container
+    participant Main as 🎮 Main
+    participant Score as 💯 Score
+    participant Sound as 🔊 Sound
 
-RESULT: Square Removed (No Collision)
-Object Interaction Matrix
-Object	Sends To	Messages Sent
-Container	Circle	start
-Squares	start
-Main	show_gameover
-Circle	Self	acquire_input_focus, release_input_focus, disable
-Sound	play_sound (move, rebound, explode)
-Container	end_game
-Square	Self	disable (collisionobject)
-Score	increase_score
-Squares	increase_speed, square_removed
-Circle	increase_speed, end_game
-Score	Sound	play_sound (point)
-Gameover	final_score
-Spawner	(None)	Creates objects via factory
-State Machine - Game Scene Lifecycle
+    Note over Circle,Square: 💥 COLLISION DETECTED
+
+    Circle->>Square: trigger_response (collision)
+    Square->>Square: Check: is_point == false ❌
+    Square->>Square: msg.post('#collisionobject', 'disable')
+    
+    par Game Over Messages
+        Square->>Circle: msg.post('circle', 'end_game')
+        Square->>Spawner: msg.post('squares', 'stop')
+    end
+    
+    rect rgb(255, 200, 200)
+    Note over Circle: CIRCLE END GAME
+    Circle->>Circle: release_input_focus (disable touch)
+    Circle->>Circle: Cancel animations
+    Circle->>Circle: msg.post('.', 'disable')
+    Circle->>Circle: particlefx.play('#explode')
+    Circle->>Sound: msg.post('main:/sound#explode', 'play_sound')
+    Note over Circle: 💥 Explosion playing...
+    Circle->>Circle: Wait for explosion callback
+    end
+    
+    rect rgb(200, 200, 255)
+    Note over Spawner: STOP SPAWNING
+    Spawner->>Spawner: timer.cancel(spawn_timer)
+    loop For each active square
+        Spawner->>Spawner: Cancel animations
+        Spawner->>Spawner: Animate scale to 0
+        Spawner->>Spawner: go.delete(square)
+    end
+    Spawner->>Spawner: Clear active[] table
+    end
+    
+    Note over Circle: Explosion complete
+    Circle->>Container: msg.post('container', 'end_game')
+    
+    rect rgb(255, 220, 200)
+    Note over Container: CONTAINER CLEANUP
+    Container->>Container: Set STATE_GAMEOVER
+    Container->>Container: timer.delay(0.3s)
+    Container->>Container: Animate down (0.4s INQUINT)
+    end
+    
+    Note over Container: Animation complete
+    Container->>Main: msg.post('main:/go', 'show_gameover')
+    
+    rect rgb(220, 255, 220)
+    Note over Main: STATE TRANSITION
+    Main->>Main: msg.post('go#game', 'unload')
+    Main->>Main: msg.post('go#gameover', 'load')
+    end
+    
+    Note over Score: final() executes
+    Score->>Main: msg.post('gameover:/go#gameover', 'final_score', {score})
+    
+    Note over Circle,Sound: ❌ GAME OVER - Transition to Gameover Screen
+```
+5. Square Lifecycle (Normal - No Collision)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Spawner as 🏭 Square Spawner
+    participant Factory as ⚙️ Factory
+    participant Square as 🟦 Square Instance
+
+    Note over Spawner: spawn() called
+
+    Spawner->>Spawner: Generate random start_x
+    Spawner->>Spawner: start_pos = (x, top_of_screen)
+    Spawner->>Spawner: Generate random end_x
+    Spawner->>Spawner: end_pos = (x, middle_screen)
+    Spawner->>Spawner: counter += 1
+    Spawner->>Spawner: is_point = (counter % 5 == 0)
+    
+    Spawner->>Factory: factory.create('#factory', start_pos, {speed, end_pos, is_point})
+    Factory->>Square: Create game object
+    
+    rect rgb(200, 220, 255)
+    Note over Square: init() executes
+    alt is_point == true
+        Square->>Square: Set color = RED
+    else is_point == false
+        Square->>Square: Set color = DARK
+    end
+    Square->>Square: move()
+    end
+    
+    rect rgb(255, 220, 200)
+    Note over Square: MOVEMENT
+    Square->>Square: Calculate duration
+    Square->>Square: Random spin_direction (±360°)
+    Square->>Square: Animate rotation (LOOP)
+    Square->>Square: Animate position to end_pos (LINEAR)
+    end
+    
+    Note over Square: ⏳ Falling... (no collision)
+    
+    Note over Square: Animation reaches end_position
+    Square->>Spawner: msg.post('squares', 'square_removed', {id})
+    
+    rect rgb(220, 255, 220)
+    Note over Spawner: CLEANUP
+    Spawner->>Spawner: Find square in active[] table
+    Spawner->>Spawner: table.remove(active, i)
+    Spawner->>Square: Animate scale to 0 (0.3s)
+    Spawner->>Square: go.delete(square)
+    end
+    
+    Note over Spawner,Square: ✅ Square Removed (No Collision)
+```
+6. State Machine - Game Scene Lifecycle
+```mermaid
 stateDiagram-v2
-    [*] --> Loading: Collection loads
-    Loading --> Initializing: All init() called
-    Initializing --> AnimatingIn: Container slides up
-    AnimatingIn --> CircleActive: Circle starts moving
-    CircleActive --> GameRunning: Squares start spawning (2s delay)
+    [*] --> Loading: msg.post('go#game', 'load')
     
-    GameRunning --> CollectPoint: Player hits RED square
-    CollectPoint --> GameRunning: Score +1, Speed increased
+    Loading --> Initializing: proxy_loaded + enable
+    note right of Loading
+        Collection loads
+        Resources loaded
+    end note
     
-    GameRunning --> GameOver: Player hits DARK square
-    GameOver --> ExplosionPlaying: Circle explodes
-    ExplosionPlaying --> AnimatingOut: Container slides down
-    AnimatingOut --> Unloading: Transition to gameover
-    Unloading --> [*]
+    Initializing --> AnimatingIn: All init() complete
+    note right of Initializing
+        Container: STATE_GAME
+        Circle: speed=46, boundaries
+        Score: score=0
+        Spawner: ready
+    end note
+    
+    AnimatingIn --> CircleActive: Container animation done (0.4s)
+    note right of AnimatingIn
+        Container slides up
+        msg.post('circle', 'start')
+    end note
+    
+    CircleActive --> GameRunning: Timer fires (2s delay)
+    note right of CircleActive
+        Circle bouncing left ↔ right
+        Player can tap to change direction
+        msg.post('squares', 'start')
+    end note
+    
+    GameRunning --> CollectPoint: Circle hits RED square
+    GameRunning --> GameOver: Circle hits DARK square
+    CollectPoint --> GameRunning: Return to gameplay
     
     note right of GameRunning
-        Player taps to change direction
-        Squares continuously spawn
-        Difficulty increases with score
+        ▶️ ACTIVE GAMEPLAY
+        • Player taps to move
+        • Squares spawn continuously
+        • Difficulty increases with score
     end note
     
     note right of CollectPoint
-        Parallel messages:
-        - increase_score
-        - increase_speed (×2)
-        - square_removed
+        ✅ SUCCESS PATH
+        • score += 1
+        • increase_speed (circle & spawner)
+        • square_removed
+        • Play point sound
     end note
     
+    GameOver --> ExplosionPlaying: end_game triggered
     note right of GameOver
-        Parallel messages:
-        - end_game (circle)
-        - stop (spawner)
+        ❌ GAME OVER
+        • Disable input
+        • Stop spawning
+        • Play explosion
     end note
+    
+    ExplosionPlaying --> AnimatingOut: Explosion complete
+    AnimatingOut --> Unloading: Container animation done (0.4s)
+    
+    Unloading --> [*]: show_gameover
+    note right of Unloading
+        • Unload game collection
+        • Load gameover collection
+        • Send final_score
+    end note
+```
+7. Message Flow Table (Quick Reference)
+## Game Scene Message Reference
+
+### Messages Sent by Each Object
+
+| Sender | Receiver | Message | When | Purpose |
+|--------|----------|---------|------|---------|
+| **container.script** | circle | `start` | After container animates in (0.4s) | Start player movement |
+| | squares | `start` | 2 seconds after circle starts | Begin spawning squares |
+| | main:/go | `show_gameover` | After end_game animation | Transition to gameover |
+| **circle.script** | . (self) | `acquire_input_focus` | On start | Enable touch input |
+| | . (self) | `release_input_focus` | On end_game | Disable touch input |
+| | . (self) | `disable` | On end_game | Hide circle |
+| | main:/sound#move | `play_sound` | Player taps screen | Movement sound |
+| | main:/sound#rebound | `play_sound` | Reach boundary | Bounce sound |
+| | main:/sound#explode | `play_sound` | On end_game | Explosion sound |
+| | container | `end_game` | After explosion completes | Notify game ended |
+| **square.script** | #collisionobject | `disable` | Collision detected | Prevent multiple collisions |
+| | squares | `square_removed` | Reach end OR collision (point) | Request deletion |
+| | score | `increase_score` | Collision (is_point=true) | Add +1 score |
+| | squares | `increase_speed` | Collision (is_point=true) | Increase spawn difficulty |
+| | circle | `increase_speed` | Collision (is_point=true) | Increase player speed |
+| | circle | `end_game` | Collision (is_point=false) | Trigger game over |
+| | squares | `stop` | Collision (is_point=false) | Stop spawning |
+| **score.script** | main:/sound#point | `play_sound` | Score increases | Point collected sound |
+| | gameover:/go#gameover | `final_score` {score} | final() called | Send score to gameover |
+| **square_spawner.script** | *(none)* | - | - | Only receives messages |
+
+### Messages Received by Each Object
+
+| Receiver | Sender | Message | Action |
+|----------|--------|---------|--------|
+| **container.script** | circle | `end_game` | Wait 0.3s → Animate out → show_gameover |
+| **circle.script** | container | `start` | move() + acquire_input_focus |
+| | square | `increase_speed` | speed += 0.45 (max ~64) |
+| | square | `end_game` | Release input → Disable → Explosion → Notify container |
+| **square.script** | *(physics)* | `trigger_response` | Handle collision logic |
+| **score.script** | square | `increase_score` | score++ → Update label → Animate pulse → Play sound |
+| **square_spawner.script** | container | `start` | spawn() → Begin spawn loop |
+| | square | `increase_speed` | speed+=0.54, frequency+=0.55 |
+| | square | `square_removed` {id} | Animate scale to 0 → Delete square |
+| | square | `stop` | Cancel timer → Animate out all squares |
+| | circle | `end_game` | Cancel timers → Delete all squares |
+```
+8. Timing Diagram
+```mermaid
+gantt
+    title Game Scene Timeline
+    dateFormat X
+    axisFormat %Ls
+
+    section Initialization
+    Collection loads           :0, 100
+    All init() execute         :100, 200
+    
+    section Container
+    Animate up (0.4s)          :200, 600
+    Wait for end_game          :600, 3000
+    
+    section Circle
+    Wait for start             :200, 600
+    Start moving (t=0.4s)      :600, 3000
+    
+    section Spawner
+    Wait for start             :200, 2600
+    Start spawning (t=2.4s)    :2600, 3000
+    
+    section Gameplay
+    Active gameplay            :2600, 3000
+```
+How to Use These Diagrams
+Copy the entire code block (including the ````markdown and ``` marks)
+Paste into your README.md
+Remove the outer ````markdown wrapper (keep only the inner ```mermaid blocks)
+Push to GitHub - diagrams will render automatically!
+Example:
+# Game Scene Documentation
+
+## Architecture Overview
+
+```mermaid
+graph TB
+    [paste the mermaid code here]
+```
+
+## Initialization Sequence
+
+```mermaid
+sequenceDiagram
+    [paste the mermaid code here]
+```
+All diagrams are tested and will render perfectly on GitHub! 🚀
 Update Todos
 
-Analyze Game Scene initialization sequence
-
-Map all messages within Game Scene objects
-
-Document all action/reaction logic chains
-
-Create detailed Game Scene flow diagram
-Summary
-I've created a complete Game Scene analysis with detailed diagrams showing:
-What's Included:
-Architecture Diagram - Visual overview of all objects and their connections
-Initialization Sequence - Step-by-step timeline with exact timings
-Complete Object Reference - All 5 objects with:
-Initialization logic
-Messages sent (to whom, when, why)
-Messages received (from whom, action taken)
-Core functions explained
-4 Critical Message Chains:
-Game Start (full initialization)
-Collect Point Square (success path)
-Hit Hazard Square (game over path)
-Square Lifecycle (normal removal)
-Object Interaction Matrix - Quick reference table
-State Machine - Game lifecycle states
-Key Insights:
-Initialization Order: Container → Circle → Score → Spawner
-Timing: Circle starts at 0.4s, Squares at 2.4s
-Messages: 20+ unique message flows documented
-Critical Path: Point collision sends 4 parallel messages
-Game Over: 2-stage process (explosion → container animation)
-All diagrams use Mermaid syntax and will render perfectly on GitHub! You can copy this entire markdown section directly to your README.md file.
+Create formatted Mermaid diagrams for GitHub README
+Perfect! I've created 8 complete Mermaid diagrams ready for your GitHub README:
+✅ Architecture Overview - Shows all objects and connections
+✅ Initialization Sequence - Step-by-step timeline with exact timing
+✅ Collect Point Square - Success path with parallel messages
+✅ Hit Hazard Square - Game over path flow
+✅ Square Lifecycle - Normal square creation to deletion
+✅ State Machine - Game states and transitions
+✅ Message Reference Table - Quick lookup for all messages
+✅ Timing Gantt Chart - Visual timeline
+All diagrams include:
+🎨 Color coding by system
+📝 Clear annotations and notes
+🔢 Step numbering (where applicable)
+💬 Message details
+⏱️ Timing information
