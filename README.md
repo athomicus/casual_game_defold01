@@ -19,6 +19,7 @@ At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#
 <img width="245" height="151" alt="obraz" src="https://github.com/user-attachments/assets/f63b1a90-f54a-4160-8a0a-1f70385131bd" />
 
 <BR>
+
 ```lua
 function on_message(self, message_id, message,sender)
 	-- TRANSITION TO GAME SCENE
