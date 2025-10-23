@@ -23,36 +23,6 @@ At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#
 
  
 <br><br>
-## 📡 Message Communication Architecture
-
-This diagram shows how all game components communicate using Defold's `msg.post()` system:
-
-```mermaid
-graph LR
-    START[Start Screen] -->|show_game| MAIN[Main Controller]
-    MAIN -->|load| GAME[Game Scene]
-    GAME --> CIRCLE[Circle Player]
-    GAME --> SPAWNER[Square Spawner]
-    SPAWNER -->|creates| SQUARE[Squares]
-    SQUARE -->|increase_score| SCORE[Score System]
-    SQUARE -->|increase_speed| CIRCLE
-    SQUARE -->|end_game| CIRCLE
-    CIRCLE -->|end_game| GAME
-    GAME -->|show_gameover| MAIN
-    MAIN -->|load| GAMEOVER[Game Over]
-```
-
-### Key Message Types
-
-| Message | Sender | Receiver | Purpose |
-|---------|--------|----------|---------|
-| `show_game` | start.gui_script | main.script | Start game |
-| `increase_score` | square.script | score.script | +1 point |
-| `increase_speed` | square.script | circle.script, square_spawner.script | Increase difficulty |
-| `end_game` | square.script / circle.script | container.script | Trigger game over |
-| `show_gameover` | container.script | main.script | Load gameover screen |
-
-
 
 
 
@@ -111,6 +81,38 @@ graph TD
     L --> M[Show Final Score]
     M --> C
 ```
+
+## 📡 Message Communication Architecture
+
+This diagram shows how all game components communicate using Defold's `msg.post()` system:
+
+```mermaid
+graph LR
+    START[Start Screen] -->|show_game| MAIN[Main Controller]
+    MAIN -->|load| GAME[Game Scene]
+    GAME --> CIRCLE[Circle Player]
+    GAME --> SPAWNER[Square Spawner]
+    SPAWNER -->|creates| SQUARE[Squares]
+    SQUARE -->|increase_score| SCORE[Score System]
+    SQUARE -->|increase_speed| CIRCLE
+    SQUARE -->|end_game| CIRCLE
+    CIRCLE -->|end_game| GAME
+    GAME -->|show_gameover| MAIN
+    MAIN -->|load| GAMEOVER[Game Over]
+```
+
+### Key Message Types
+
+| Message | Sender | Receiver | Purpose |
+|---------|--------|----------|---------|
+| `show_game` | start.gui_script | main.script | Start game |
+| `increase_score` | square.script | score.script | +1 point |
+| `increase_speed` | square.script | circle.script, square_spawner.script | Increase difficulty |
+| `end_game` | square.script / circle.script | container.script | Trigger game over |
+| `show_gameover` | container.script | main.script | Load gameover screen |
+
+
+
 
 ### Key Systems
 
