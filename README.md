@@ -3,6 +3,14 @@
 # Mobile Square Game
 
 ## 🎮 Gameplay
+
+<img width="166" height="35" alt="obraz" src="https://github.com/user-attachments/assets/ced29c34-7d37-48ca-a0ba-138113e0d3d8" />
+<img width="245" height="151" alt="obraz" src="https://github.com/user-attachments/assets/f63b1a90-f54a-4160-8a0a-1f70385131bd" />
+main.script loaading appropriate collection and unloading no needed
+<img width="532" height="442" alt="obraz" src="https://github.com/user-attachments/assets/d35b8208-539c-4d75-8d1e-2fa940513683" />
+
+
+
 [Your gameplay description]
 
 ## 📡 Message Communication Architecture
