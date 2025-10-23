@@ -223,5 +223,4 @@ This creates an **accelerating difficulty curve** that challenges players progre
 | `game/score.script` | Score tracking and persistence |
 | `custom/render/custom.render_script` | Screen projection and rendering pipeline |
 <br><br>
-<img src="docs\scheme.png" height="50%" width="50%">
 
