@@ -22,7 +22,7 @@ At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#
 
 
  
-
+<br><br>
 ## 📡 Message Communication Architecture
 
 This diagram shows how all game components communicate using Defold's `msg.post()` system:
