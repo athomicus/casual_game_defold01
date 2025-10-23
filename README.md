@@ -2,86 +2,37 @@
 
 # Mobile Square Game
 
-## Message Communication Flow
+## 🎮 Gameplay
+[Your gameplay description]
+
+## 📡 Message Communication Architecture
+
+This diagram shows how all game components communicate using Defold's `msg.post()` system:
 
 ```mermaid
-graph TB
-    subgraph "INITIALIZATION"
-        MAIN[main.script<br/>State Manager]
-        RENDER[@render:<br/>Render System]
-        SOUND[main:/sound#*<br/>Sound System]
-    end
-
-    subgraph "START SCREEN"
-        START_GUI[start.gui_script<br/>Menu GUI]
-    end
-
-    subgraph "GAME SCENE"
-        CONTAINER[container.script<br/>Game Orchestrator]
-        CIRCLE[circle.script<br/>Player]
-        SQUARES[square_spawner.script<br/>Spawner]
-        SQUARE[square.script<br/>Individual Square]
-        SCORE[score.script<br/>Score Tracker]
-    end
-
-    subgraph "GAMEOVER SCREEN"
-        GAMEOVER[gameover.gui_script<br/>Results GUI]
-    end
-
-    %% INITIALIZATION MESSAGES
-    MAIN -->|"use_fixed_fit_projection"| RENDER
-    MAIN -->|"clear_color"| RENDER
-    MAIN -->|"load"| START_GUI
-
-    %% START SCREEN MESSAGES
-    START_GUI -->|"play_sound"| SOUND
-    START_GUI -->|"show_game"| MAIN
-
-    %% MAIN STATE TRANSITIONS
-    MAIN -->|"unload"| START_GUI
-    MAIN -->|"load"| CONTAINER
-    MAIN -->|"unload"| CONTAINER
-    MAIN -->|"load"| GAMEOVER
-    MAIN -->|"unload"| GAMEOVER
-
-    %% GAME START MESSAGES
-    CONTAINER -->|"start"| CIRCLE
-    CONTAINER -->|"start (2s delay)"| SQUARES
-
-    %% CIRCLE MESSAGES
-    CIRCLE -->|"play_sound (rebound)"| SOUND
-    CIRCLE -->|"play_sound (move)"| SOUND
-    CIRCLE -->|"play_sound (explode)"| SOUND
-    CIRCLE -->|"end_game"| CONTAINER
-
-    %% SQUARE COLLISION MESSAGES (Point Square - Red)
-    SQUARE -->|"increase_score"| SCORE
-    SQUARE -->|"increase_speed"| SQUARES
-    SQUARE -->|"increase_speed"| CIRCLE
-    SQUARE -->|"square_removed"| SQUARES
-
-    %% SQUARE COLLISION MESSAGES (Hazard Square - Dark)
-    SQUARE -->|"end_game"| CIRCLE
-    SQUARE -->|"stop"| SQUARES
-
-    %% SCORE MESSAGES
-    SCORE -->|"play_sound (point)"| SOUND
-    SCORE -->|"final_score"| GAMEOVER
-
-    %% GAME OVER MESSAGES
-    CONTAINER -->|"show_gameover"| MAIN
-
-    style MAIN fill:#e94a4f,color:#fff
-    style CONTAINER fill:#4a90e2,color:#fff
-    style CIRCLE fill:#4a90e2,color:#fff
-    style SQUARES fill:#4a90e2,color:#fff
-    style SQUARE fill:#4a90e2,color:#fff
-    style SCORE fill:#4a90e2,color:#fff
-    style START_GUI fill:#50c878,color:#fff
-    style GAMEOVER fill:#50c878,color:#fff
-    style SOUND fill:#ffa500,color:#fff
-    style RENDER fill:#9370db,color:#fff
+graph LR
+    START[Start Screen] -->|show_game| MAIN[Main Controller]
+    MAIN -->|load| GAME[Game Scene]
+    GAME --> CIRCLE[Circle Player]
+    GAME --> SPAWNER[Square Spawner]
+    SPAWNER -->|creates| SQUARE[Squares]
+    SQUARE -->|increase_score| SCORE[Score System]
+    SQUARE -->|increase_speed| CIRCLE
+    SQUARE -->|end_game| CIRCLE
+    CIRCLE -->|end_game| GAME
+    GAME -->|show_gameover| MAIN
+    MAIN -->|load| GAMEOVER[Game Over]
 ```
+
+### Key Message Types
+
+| Message | Sender | Receiver | Purpose |
+|---------|--------|----------|---------|
+| `show_game` | start.gui_script | main.script | Start game |
+| `increase_score` | square.script | score.script | +1 point |
+| `increase_speed` | square.script | circle.script, square_spawner.script | Increase difficulty |
+| `end_game` | square.script / circle.script | container.script | Trigger game over |
+| `show_gameover` | container.script | main.script | Load gameover screen |
 
 
 
