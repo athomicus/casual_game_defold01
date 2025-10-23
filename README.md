@@ -1,4 +1,18 @@
-#CASUAL MOBILE GAME
+
+# Mobile Square Game
+
+A casual mobile dodge game built with Defold Engine where players control a bouncing circle to collect points while avoiding obstacles.
+
+## 🎮 Gameplay
+
+- Control a red circle that automatically moves left and right
+- **Tap the screen** to change direction
+- **Collect red squares** for points (+1 score)
+- **Avoid dark squares** (instant game over)
+- Game progressively gets faster as you score points
+- Beat your high score!
+
+
 
 # Mobile Square Game
 
@@ -45,19 +59,6 @@ graph LR
 
 
 
-
-# Mobile Square Game
-
-A casual mobile dodge game built with Defold Engine where players control a bouncing circle to collect points while avoiding obstacles.
-
-## 🎮 Gameplay
-
-- Control a red circle that automatically moves left and right
-- **Tap the screen** to change direction
-- **Collect red squares** for points (+1 score)
-- **Avoid dark squares** (instant game over)
-- Game progressively gets faster as you score points
-- Beat your high score!
 
 ## 🏗️ Project Structure
 
