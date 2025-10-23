@@ -12,17 +12,16 @@ A casual mobile dodge game built with Defold Engine where players control a boun
 - Game progressively gets faster as you score points
 - Beat your high score!
 
-
+<br>
 Starting BootStrap->main.collection-> main.script
-At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#start', 'load')  ) collection and unloading no needed one<br>
+At the begining <b>main.script</b> loading appropriate(in init()-> msg.post('go#start', 'load')  ) collection and unloading no needed one<br><br>
 <img width="166" height="35" alt="obraz" src="https://github.com/user-attachments/assets/ced29c34-7d37-48ca-a0ba-138113e0d3d8" />
 <img width="245" height="151" alt="obraz" src="https://github.com/user-attachments/assets/f63b1a90-f54a-4160-8a0a-1f70385131bd" />
 
 <img width="532" height="442" alt="obraz" src="https://github.com/user-attachments/assets/d35b8208-539c-4d75-8d1e-2fa940513683" />
 
 
-
-[Your gameplay description]
+ 
 
 ## 📡 Message Communication Architecture
 
@@ -273,7 +272,7 @@ This creates an **accelerating difficulty curve** that challenges players progre
 
 <br><br><br>
 
-Game Scene Documentation - Mermaid Diagrams
+Game Scene Documentation 
 1. Game Scene Architecture Overview
 ```mermaid
 graph TB
