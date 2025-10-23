@@ -3,7 +3,7 @@
 # Mobile Square Game
 
 ## 🎮 Gameplay
-at the begining <b>main.script</b> loaaing appropriate collection and unloading no needed one<br>
+at the begining <b>main.script</b> loading appropriate collection and unloading no needed one<br>
 <img width="166" height="35" alt="obraz" src="https://github.com/user-attachments/assets/ced29c34-7d37-48ca-a0ba-138113e0d3d8" />
 <img width="245" height="151" alt="obraz" src="https://github.com/user-attachments/assets/f63b1a90-f54a-4160-8a0a-1f70385131bd" />
 
