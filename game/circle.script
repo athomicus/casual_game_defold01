@@ -40,7 +40,14 @@ local function end_game(self)
 	go.cancel_animations('.','position.x')
 	msg.post('.', 'disable')	--disable circle --will be no visible
 	local function emitter_state_change(self,id,emitter,state) --callback for particlefx
-		if state == particlefx.PARTICLEFX_STATE_SLEEPING then
+		--[[Emiter przechodzi przez następujące stany:
+EMITTER_STATE_PRESPAWN - Emiter się przygotowuje
+EMITTER_STATE_SPAWNING - Emiter emituje cząsteczki (aktywnie działa)
+EMITTER_STATE_POSTSPAWN - Emiter skończył emitować, ale cząsteczki jeszcze żyją
+EMITTER_STATE_SLEEPING - Wszystkie cząsteczki wygasły, efekt się zakończył]]
+	
+		if state == particlefx.EMITTER_STATE_SLEEPING then
+			--pprint("jetem w IF")
 			msg.post('container', 'end_game')
 		end
 	end
@@ -79,6 +86,7 @@ function on_message(self, message_id, message, sender)
 		increase_speed(self)
 		--print(self.speed)
 	elseif message_id == hash('end_game') then
+		pprint("[square] -|end_game|-> [circle]  ")
 		end_game(self)
 	end
 end

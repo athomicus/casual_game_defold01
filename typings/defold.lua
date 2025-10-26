@@ -1,26 +1,19 @@
--- Editor-only Defold API stubs for the language server.
--- This file must NOT execute in the running game (it would overwrite engine globals).
--- Guard: if the real engine `go.is_enabled` exists, abort and do nothing.
-if type(go) == 'table' and type(go.is_enabled) == 'function' then
-    return nil
-end
-
+--- Defold API stubs for editor (silence undefined globals in Lua language servers)
+--- Put this file in your workspace to help VSCode/Lua LSP understand Defold globals.
 ---@meta
 
--- vmath helpers (stubs for editor)
+-- vmath helpers
 vmath = vmath or {}
 function vmath.vector3(x,y,z) return { x = x or 0, y = y or 0, z = z or 0 } end
 function vmath.vector4(r,g,b,a) return { x = r or 0, y = g or 0, z = b or 0, w = a or 1 } end
 
--- go API (stubs)
+-- go API
 go = go or {}
 function go.get(url, property) end
 function go.set(url, property, value) end
 function go.get_position(url) return { x = 0, y = 0, z = 0 } end
 function go.animate(url, property, playback, to, easing, duration, delay, callback) end
 function go.cancel_animations(url, property) end
-function go.is_enabled(url) return true end
-function go.delete(url, keep_instance) end
 
 -- sprite API
 sprite = sprite or {}

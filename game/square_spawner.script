@@ -24,7 +24,7 @@ local function spawn(self)
 		speed=self.speed,
 		end_position = end_position,
 		--moglo by byc tylko tak: (self.square_counter % 5 == 0) 
-		is_point = (self.square_counter % 5 == 0) and true or false 
+		is_point = (self.square_counter % 3 == 0) and true or false 
 	}, 1)
 	table.insert(self.active, square)
 	local frequency = self.frequency * 0.1
@@ -73,37 +73,22 @@ function on_message(self, message_id, message,sender)
 		end)
 	
 	elseif message_id == hash('stop') then --stop from square script
+		--print("stop otrzymano w squares")
 		timer.cancel(self.spawn_timer)
 		for i=#self.active,1,-1 do
 			local square = self.active[i]
-			table.remove(self.active,i)
-			 
+			--pprint(square)
+			--table.remove(self.active,i)
+			
+			 if go.exists(square) then
 				go.cancel_animations(square, 'euler.z')
 				go.cancel_animations(square, 'position')
 				go.animate(square  ,'scale', go.PLAYBACK_ONCE_FORWARD, vmath.vector3(0), go.EASING_LINEAR, 0.3,0.5,function()
 				go.delete(square) --go.delete(message.id,true)
 					end)
-				end
-		 
-	
-	elseif message_id == hash('end_game') then
-		--anuluj timer spawnujący kwadraty
-		if self.spawn_timer then
-			timer.cancel(self.spawn_timer)
-			self.spawn_timer = nil
-		end
-		--anuluj timer zwiększający trudność
-		if self.difficulty_timer then
-			timer.cancel(self.difficulty_timer)
-			self.difficulty_timer = nil
-		end
-		--usun wszystkie aktywne kwadraty
-		for _, square in ipairs(self.active) do
-			if go.is_enabled(square) then
-				go.delete(square)
 			end
-		end
-		self.active = {}
+		end	
+		self.active={}
 	end
 
 end

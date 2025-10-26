@@ -7,27 +7,29 @@ function init(self)
 	msg.post('@render:',hash('clear_color'), {color = data.bg_color })
 	--load start collection
 	msg.post('go#start', 'load')
+	--msg.post('go#gameover', 'load')
 end
 
 
 
 function on_message(self, message_id, message,sender)
+	-- TRANSITION TO GAME SCENE
+	-- Triggered by: start.gui_script or gameover.gui_script	
 	if message_id == hash("show_game") then
-		if data.state == data.STATE_START then
-			--unload start collection
-			msg.post('go#start', 'unload')
+				if data.state == data.STATE_START then
+			msg.post('go#start', 'unload')     -- Unload start menu collection
 		else
-			--unload gameover collection
-			msg.post('go#gameover', 'unload')			
+			msg.post('go#gameover', 'unload')  -- Unload gameover collection
 		end
-		--load game collection
-		msg.post('go#game', 'load')		
+   		msg.post('go#game', 'load')            -- Load the game scene collection
+	-- TRANSITION TO GAMEOVER SCENE
+	-- Triggered by: container.script (when player dies)
 	elseif message_id == hash("show_gameover") then
-		msg.post('go#game', 'unload')
-		msg.post('go#gameover', 'load')
+		
+		msg.post('go#game', 'unload')      -- Unload game collection
+		msg.post('go#gameover', 'load')    -- Load gameover collection
 	elseif message_id == hash("proxy_loaded") then
-		--enable collection
-		msg.post(sender,'enable')
+		msg.post(sender,'enable')  -- Enable/activate the loaded collection
 	end
 end
 

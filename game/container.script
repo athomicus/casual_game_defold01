@@ -10,12 +10,15 @@ function init(self)
 			msg.post('squares', 'start')			
 		end)
 	end)
+
+	--print("containter_init")
 end
 
 
 
 function on_message(self, message_id, message, sender)
 	if message_id == hash('end_game') then
+		print("end_game otrzymano w main")
 		timer.delay(0.3, false, function()
 			go.animate('.','position.y',go.PLAYBACK_ONCE_FORWARD,data.max_y,gui.EASING_INQUINT,0.4,0,function()
 				msg.post('main:/go', 'show_gameover')
@@ -25,3 +28,10 @@ function on_message(self, message_id, message, sender)
 	end
 end
 
+--[[
+Zderzenie → square wykrywa kolizję z czarnym kwadratem
+Circle → otrzymuje end_game, odtwarza efekt wybuchu i wyłącza się
+Squares → otrzymuje stop, zatrzymuje spawning i usuwa wszystkie kwadraty
+Container → po zakończeniu efektu wybuchu animuje wyjście sceny i wysyła show_gameover
+Main → przełącza się na ekran Game Over
+]]--

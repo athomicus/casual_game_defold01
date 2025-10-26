@@ -1,2 +1,47 @@
+script: "/gameover/gameover.gui_script"
+fonts {
+  name: "Schlub"
+  font: "/main/Schlub.font"
+}
+textures {
+  name: "main"
+  texture: "/main/main.atlas"
+}
+nodes {
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_BOX
+  id: "container"
+  alpha: 0.0
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 302.0
+    y: 320.0
+  }
+  type: TYPE_BOX
+  texture: "main/replay_button"
+  id: "replay"
+  parent: "container"
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 302.0
+    y: 833.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Game Over"
+  font: "Schlub"
+  id: "text"
+  parent: "container"
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
