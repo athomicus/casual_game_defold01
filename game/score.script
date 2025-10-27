@@ -7,7 +7,7 @@ function init(self)
 	  
 end
 
-function final(self)
+function final(self) -- Wywoływana TUŻ PRZED usunięciem obiektu!
 	if data.state == data.STATE_GAMEOVER then
 		msg.post('gameover:/go#gameover','final_score', {score = self.score})
 	end

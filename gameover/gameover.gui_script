@@ -23,8 +23,9 @@ function on_message(self, message_id, message, sender)
 
 		if message.score >= data.sd.best_score then
 			data.sd.best_score = message.score
-			gui.set_text(self.score_label, "New High Score: "..tostring(score))
+			gui.set_text(self.score_label, "NEW HIGH SCORE: "..tostring(score))
 			msg.post('main:/sound#new_best', 'play_sound')
+			data.save() -- zappisz plik z wynikiem
 		else
 			gui.set_text(self.score_label, "Score: "..tostring(score))
 		end

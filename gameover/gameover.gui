@@ -43,5 +43,20 @@ nodes {
   id: "text"
   parent: "container"
 }
+nodes {
+  position {
+    x: 302.0
+    y: 721.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "Schlub"
+  id: "score"
+  parent: "container"
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT

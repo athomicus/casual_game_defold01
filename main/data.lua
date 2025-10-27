@@ -7,8 +7,8 @@ M.STATE_GAMEOVER = 3
 
 M.state = M.STATE_START
 
-local savefile_path = sys.get_save_file(string.gsub(sys.get_config('project.title'), '%s+', ''), 'save_file')
-local loaded = sys.load(savefile_path)
+local savefile_path = sys.get_save_file(string.gsub(sys.get_config('project.title'), '%s+', ''), 'save_file') --Tworzy plik 
+local loaded = sys.load(savefile_path)-- Załaduj plik (jeśli istnieje)
 
 M.sd = {
 	best_score = loaded.best_score or 0
